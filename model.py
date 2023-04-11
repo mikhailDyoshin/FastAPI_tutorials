@@ -9,3 +9,10 @@ class Item(BaseModel):
 class Todo(BaseModel):
     id: int
     item: Item
+
+class TodoItem(BaseModel):
+    """
+        The model defines request body for todo-update method.
+    """
+    item: Item
+    
