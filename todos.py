@@ -1,39 +1,61 @@
-from fastapi import APIRouter, Path, HTTPException, status
+from fastapi import APIRouter, Path, HTTPException, status, Request, Depends
 from model import Todo, TodoItem, TodoItems
+from fastapi.templating import Jinja2Templates
 
 
 todo_router = APIRouter()
 
 todo_list = []
 
+# loading templates
+templates = Jinja2Templates(directory='templates/')
+
 
 @todo_router.post("/todos")
-async def add_todo(todo: Todo) -> dict:
+async def add_todo(request: Request, todo: Todo=Depends(Todo.as_form)):
     """
         Adds todos to the todo-list.
     """
+    todo.id = len(todo_list) + 1
     todo_list.append(todo)
-    return {'message': 'Todo added successfully'}
+    # Sending data to the template
+    return templates.TemplateResponse(
+        'todo.html',
+        {
+            "request": request,
+            "todos": todo_list,
+        }
+    )
 
 
 @todo_router.get("/todos", response_model=TodoItems)
-async def retrieve_todos() -> dict:
+async def retrieve_todos(request: Request):
     """
         Retrieves all existing todos.
     """
-    return {'todos': todo_list}
+    return templates.TemplateResponse(
+        'todo.html',
+        {
+            "request": request,
+            "todos": todo_list,
+        }
+    )
 
 
 @todo_router.get("/todos/{todo_id}")
-async def retrieve_single_todo(todo_id: int=Path(..., title="The ID of the todo to retrieve")) -> dict:
+async def retrieve_single_todo(request: Request, todo_id: int=Path(..., title="The ID of the todo to retrieve")) -> dict:
     """
         Retrieves the todo with given ID using a path parameter.
     """
     for todo in todo_list:
         if todo.id == todo_id:
-            return {
-                "todo": todo,
-            }
+            return templates.TemplateResponse(
+                'todo.html',
+                {
+                    "request": request,
+                    "todo": todo,
+                }
+            )
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Todo with supplied ID doesn't exist.",

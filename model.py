@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+from fastapi import Form
 
 
 # An example of nested models
@@ -8,8 +9,12 @@ class Item(BaseModel):
     status: str
 
 class Todo(BaseModel):
-    id: int
+    id: Optional[int]
     item: Item
+
+    @classmethod
+    def as_form(cls, item: str = Form(...)):
+        return cls(item=item)
 
 class TodoItem(BaseModel):
     """
