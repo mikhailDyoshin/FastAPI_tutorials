@@ -3,14 +3,9 @@ from typing import List, Optional
 from fastapi import Form
 
 
-# An example of nested models
-class Item(BaseModel):
-    item: str
-    status: str
-
 class Todo(BaseModel):
     id: Optional[int]
-    item: Item
+    item: str
 
     @classmethod
     def as_form(cls, item: str = Form(...)):
@@ -20,7 +15,7 @@ class TodoItem(BaseModel):
     """
         The model defines request body for todo-update method.
     """
-    item: Item
+    item: str
 
 class TodoItems(BaseModel):
     """
